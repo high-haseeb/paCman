@@ -55,20 +55,20 @@ int main(){
     };
     while (!WindowShouldClose()) {
   
-     if (IsKeyPressed(KEY_UP) && pacmanBoard[qy - 1][qx] != '#') {
+     if (IsKeyPressed(KEY_W) && pacmanBoard[qy - 1][qx] != '#') {
        //if (); 
        pacmanBoard[qy][qx] = ' ';
        qy--;
      }
-     if (IsKeyPressed(KEY_DOWN) && pacmanBoard[qy + 1][qx] != '#') {
+     if (IsKeyPressed(KEY_S) && pacmanBoard[qy + 1][qx] != '#') {
        pacmanBoard[qy][qx] = ' ';
        qy++;
      }
-     if (IsKeyPressed(KEY_LEFT) && pacmanBoard[qy][qx - 1] != '#') {
+     if (IsKeyPressed(KEY_A) && pacmanBoard[qy][qx - 1] != '#') {
        pacmanBoard[qy][qx] = ' ';
        qx--;
      }
-     if (IsKeyPressed(KEY_RIGHT) && pacmanBoard[qy][qx + 1] != '#') {
+     if (IsKeyPressed(KEY_D) && pacmanBoard[qy][qx + 1] != '#') {
        pacmanBoard[qy][qx] = ' ';
        qx++;
      }
