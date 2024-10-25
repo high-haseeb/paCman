@@ -135,7 +135,7 @@ int main() {
 
     InitWindow(screenWidth, screenHeight, "Pacman");
     SetTargetFPS(60);
-    Font SF = LoadFont("./SF-Pro-Display-Bold.otf");
+    Font SF = LoadFont("./assets/SF-Pro-Display-Bold.otf");
 
 
     while (!WindowShouldClose()) {
