@@ -1,3 +1,3 @@
 run:
-	gcc pacman.c -o pacman -lraylib
+	gcc pacman.c -o pacman -lraylib -Wall -Wextra -lm
 	./pacman
