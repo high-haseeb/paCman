@@ -23,7 +23,7 @@ char pacmanBoard[ROWS][COLS] = {
     {'#', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '#'},
-    {'#', '.', '.', '.', '.', '#', '#', ' ', ' ', '#', '#', '.', '.', '.', '.', '#'},
+    {'#', '.', '.', '.', '.', '.', '.', ' ', ' ', '.', '.', '.', '.', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '#', ' ', ' ', ' ', ' ', '#', '.', '.', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '#', '#', '#', '#', '#', '#', '.', '.', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'},
@@ -74,7 +74,18 @@ void drawBoard() {
             }
             DrawRectangle((int)pacman.position.x * CELL_SIZE, (int)pacman.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, pacman.color);
             DrawRectangle(blinky.position.x * CELL_SIZE, blinky.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, blinky.color);
-            DrawLine(blinky.position.x * CELL_SIZE, blinky.position.y * CELL_SIZE, pacman.position.x * CELL_SIZE, pacman.position.y * CELL_SIZE, RED);
+            for (int i = -1; i <= 1; i++) {
+                for (int j = -1; j <= 1; j++) {
+                    if (pacmanBoard[(int)blinky.position.y + i][(int)blinky.position.x + j] == '#')
+                        continue;
+                    /* DrawRectangle((blinky.position.x + j) * CELL_SIZE, (blinky.position.y + i) * CELL_SIZE, CELL_SIZE, CELL_SIZE, GREEN);
+                     */
+                    DrawLine((blinky.position.x + j) * CELL_SIZE, (blinky.position.y + i) * CELL_SIZE, pacman.position.x * CELL_SIZE,
+                             pacman.position.y * CELL_SIZE, RED);
+                }
+            }
+            /* DrawLine(blinky.position.x * CELL_SIZE, blinky.position.y * CELL_SIZE, pacman.position.x * CELL_SIZE, pacman.position.y *
+             * CELL_SIZE, RED); */
         }
     }
 }
@@ -125,6 +136,26 @@ void gameLoop(void) {
     }
 
     // ghost movement logic
+    //
+    int shortestDistance = INFINITY;
+    int si = 0;
+    int sj = 0;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if (pacmanBoard[(int)blinky.position.y + i][(int)blinky.position.x + j] != '#') {
+                int distance = pow(((blinky.position.x + i) - pacman.position.x), 2) + pow((blinky.position.y + j) - pacman.position.y, 2);
+                if (distance < shortestDistance) {
+                    shortestDistance = distance;
+                    si = i;
+                    sj = j;
+                }
+            } else {
+                printf("INFO: wall detected \n");
+            }
+        }
+    }
+    blinky.position.x = blinky.position.x + si * speed;
+    blinky.position.y = blinky.position.y + sj * speed;
 }
 
 int main() {
@@ -137,13 +168,12 @@ int main() {
     SetTargetFPS(60);
     Font SF = LoadFont("./assets/SF-Pro-Display-Bold.otf");
 
-
     while (!WindowShouldClose()) {
         input();
         BeginDrawing();
         ClearBackground(BLACK);
 
-        float distance = sqrt(pow((blinky.position.x - pacman.position.x), 2) + pow((blinky.position.y - pacman.position.y),2));
+        float distance = sqrt(pow((blinky.position.x - pacman.position.x), 2) + pow((blinky.position.y - pacman.position.y), 2));
         sprintf(scoreStr, "distance: %f", distance);
 
         gameLoop();
