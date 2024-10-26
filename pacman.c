@@ -1,6 +1,7 @@
 #include <math.h>
 #include <raylib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #define ROWS 19
 #define COLS 16
@@ -20,7 +21,7 @@ char pacmanBoard[ROWS][COLS] = {
     {'#', '.', '.', '#', '.', '.', '.', 'P', '.', '.', '.', '.', '#', '.', '.', '#'},
     {'#', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '#'},
     {'#', '.', '.', '#', '.', '.', '.', '.', '.', '.', '.', '.', '#', '.', '.', '#'},
-    {'#', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '.', '.', '#'},
+    {'#', '.', '.', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', '#', ' ', '#'},
     {'#', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '.', ' ', ' ', ' ', ' ', '.', '.', '.', '.', '.', '#'},
     {'#', '.', '.', '.', '.', '.', '.', ' ', ' ', '.', '.', '.', '.', '.', '.', '#'},
@@ -73,7 +74,7 @@ void drawBoard() {
                 DrawCircle(position.x + (float)CELL_SIZE / 2, position.y + (float)CELL_SIZE / 2, 5, GREEN);
             }
             DrawRectangle((int)pacman.position.x * CELL_SIZE, (int)pacman.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, pacman.color);
-            DrawRectangle(blinky.position.x * CELL_SIZE, blinky.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, blinky.color);
+            DrawRectangle((int)blinky.position.x * CELL_SIZE, (int)blinky.position.y * CELL_SIZE, CELL_SIZE, CELL_SIZE, blinky.color);
             for (int i = -1; i <= 1; i++) {
                 for (int j = -1; j <= 1; j++) {
                     if (pacmanBoard[(int)blinky.position.y + i][(int)blinky.position.x + j] == '#')
@@ -109,6 +110,33 @@ void input(void) {
 }
 
 void gameLoop(void) {
+    float minDistance = INFINITY;
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            if ((i == 1 && j == 0) || (i == -1 && j == 0) || (i == 0 && j == 1) || (i == 0 && j == -1)) {
+                // shortest distance method
+                float dist = pow((blinky.position.y + j) - pacman.position.y, 2) + pow((blinky.position.x + i) - pacman.position.x, 2);
+
+                if (minDistance > dist && pacmanBoard[(int)blinky.position.y + j][(int)blinky.position.x + i] != '#') {
+                    minDistance = dist;
+                    if (i == 0 && j == 1 && blinky.dir != UP) {
+                        blinky.dir = DOWN;
+                        printf("Moving down \n");
+                    } else if (i == 1 && j == 0 && blinky.dir != LEFT) {
+                        blinky.dir = RIGHT;
+                        printf("Moving right \n");
+                    } else if (i == 0 && j == -1 && blinky.dir != DOWN) {
+                        blinky.dir = UP;
+                        printf("Moving Up \n");
+                    } else if (i == -1 && j == 0 && blinky.dir != RIGHT) {
+                        blinky.dir = LEFT;
+                        printf("Moving left \n");
+                    }
+                }
+            }
+        }
+    }
+
     if (pacmanBoard[(int)pacman.position.y][(int)pacman.position.x] == '.') {
         pacmanBoard[(int)pacman.position.y][(int)pacman.position.x] = ' ';
         score++;
@@ -130,32 +158,43 @@ void gameLoop(void) {
     case IDLE:
         break;
     }
+
     if (pacmanBoard[(int)pacman.position.y][(int)pacman.position.x] == '#') {
         pacman.dir = IDLE;
         pacman.position = tempPosition;
     }
 
+    Vector2 temp = blinky.position;
+    switch (blinky.dir) {
+    case UP:
+        blinky.position.y -= speed;
+        break;
+    case DOWN:
+        blinky.position.y += speed;
+        break;
+    case LEFT:
+        blinky.position.x -= speed;
+        break;
+    case RIGHT:
+        blinky.position.x += speed;
+        break;
+    case IDLE:
+        break;
+    }
+
+    if (pacmanBoard[(int)blinky.position.y][(int)blinky.position.x] == '#') {
+        blinky.position = temp;
+    }
+
     // ghost movement logic
     //
-    int shortestDistance = INFINITY;
-    int si = 0;
-    int sj = 0;
-    for (int i = -1; i <= 1; i++) {
-        for (int j = -1; j <= 1; j++) {
-            if (pacmanBoard[(int)blinky.position.y + i][(int)blinky.position.x + j] != '#') {
-                int distance = pow(((blinky.position.x + i) - pacman.position.x), 2) + pow((blinky.position.y + j) - pacman.position.y, 2);
-                if (distance < shortestDistance) {
-                    shortestDistance = distance;
-                    si = i;
-                    sj = j;
-                }
-            } else {
-                printf("INFO: wall detected \n");
-            }
-        }
-    }
-    blinky.position.x = blinky.position.x + si * speed;
-    blinky.position.y = blinky.position.y + sj * speed;
+    /* if(pacmanBoard[(int)blinky.position.y][(int)blinky.position.x + 1] != '#') { */
+    /*     blinky.dir = RIGHT; */
+    /* } else if(pacmanBoard[(int)blinky.position.y - 1][(int)blinky.position.x] != '#') { */
+    /*     blinky.dir = UP; */
+    /* } else { */
+    /*     blinky.dir = LEFT; */
+    /* } */
 }
 
 int main() {
